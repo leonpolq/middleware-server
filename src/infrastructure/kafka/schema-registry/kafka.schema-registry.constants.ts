@@ -1,0 +1,1 @@
+export const KAFKA_SCHEMA_REGISTRY_NAMESPACE = 'furry';
