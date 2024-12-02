@@ -14,36 +14,42 @@ import { KafkaSchemaRegistryModule } from '@src/infrastructure/kafka/schema-regi
     controllers: [],
     imports: [
         KafkaSchemaRegistryModule,
-        ClientsModule.registerAsync([
-            {
-                name: KAFKA_SERVICE_PRODUCER,
-                inject: [ConfigService],
-                imports: [ConfigModule],
-                useFactory: async (configService: ConfigService) => ({
-                    transport: Transport.KAFKA,
-                    options: {
-                        client: {
-                            clientId: configService.get('kafka.clientId'),
-                            brokers: configService.get('kafka.brokers'),
-                        },
-                        consumer: {
-                            groupId: 'game-logic-consumer' + Math.random(),
-                        },
-                        producer: {
-                            createPartitioner: Partitioners.LegacyPartitioner,
-                            transactionTimeout: 100000, // 30000 .. 60000
-                            retry: {
-                                maxRetryTime: 60000, // 30s
-                                initialRetryTime: 300, // 3s
-                                retries: 5,
-                            },
-                            allowAutoTopicCreation: true
-                        },
-                    },
-                }),
-            },
-        ]),
+        // ClientsModule.registerAsync([
+        //     {
+        //         name: KAFKA_SERVICE_PRODUCER,
+        //         inject: [ConfigService],
+        //         imports: [ConfigModule],
+        //         useFactory: async (configService: ConfigService) => ({
+        //             transport: Transport.KAFKA,
+        //             options: {
+        //                 client: {
+        //                     clientId: configService.get('kafka.clientId'),
+        //                     brokers: configService.get('kafka.brokers'),
+        //                 },
+        //                 consumer: {
+        //                     groupId: 'game-logic-consumer' + Math.random(),
+        //                 },
+        //                 producer: {
+        //                     createPartitioner: Partitioners.LegacyPartitioner,
+        //                     transactionTimeout: 100000, // 30000 .. 60000
+        //                     retry: {
+        //                         maxRetryTime: 60000, // 30s
+        //                         initialRetryTime: 300, // 3s
+        //                         retries: 5,
+        //                     },
+        //                     allowAutoTopicCreation: true
+        //                 },
+        //             },
+        //         }),
+        //     },
+        // ]),
     ],
 })
-export class KafkaModule {
+export class KafkaModule1 {
 }
+
+
+
+@Module({
+})
+export class KafkaModule {}
