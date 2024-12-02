@@ -2,12 +2,15 @@ import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { MicroserviceOptions, Transport } from '@nestjs/microservices'
 import { ConfigService } from '@nestjs/config'
+import { AuthenticatedSocketIoAdapter } from '@src/infrastructure/socket/adapters/authenticated.socket-io.adapter'
+import { JwtPureAuthService } from '@src/auth/services/jwt-pure-auth.service'
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule)
 
     // Access the ConfigService
     const configService = app.get(ConfigService)
+    const jwtPureAuthService = app.get(JwtPureAuthService)
 
     // Retrieve the Kafka broker details from the configuration
     const clientId = configService.get<string>('kafka.clientId')
@@ -53,6 +56,8 @@ async function bootstrap() {
             }
         },
     })
+
+    app.useWebSocketAdapter(new AuthenticatedSocketIoAdapter(app, jwtPureAuthService));
 
     await app.startAllMicroservices()
     await app.listen(3000)

@@ -3,8 +3,8 @@ import configuration from '@src/config/configuration'
 import validationSchema from '@src/config/validation.schema'
 import { ConfigModule } from '@nestjs/config'
 import { KafkaModule } from '@src/infrastructure/kafka/kafka.module'
-import { KafkaService } from '@src/infrastructure/kafka/kafka.service'
 import { SocketModule } from '@src/infrastructure/socket/socket.module'
+import { RabbitMQModule } from '@src/infrastructure/rabbitmq/rabbitmq.module'
 
 @Module({
     imports: [
@@ -15,11 +15,12 @@ import { SocketModule } from '@src/infrastructure/socket/socket.module'
             isGlobal: true,         // Makes ConfigModule globally available
         }),
         KafkaModule,
+        RabbitMQModule,
         SocketModule,
     ],
     controllers: [],
     providers: [],
-    exports: [KafkaModule]
+    exports: [KafkaModule, RabbitMQModule]
 })
 export class CommonModule {
 }

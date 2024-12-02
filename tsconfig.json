@@ -23,6 +23,7 @@
       "@config/*": ["src/configs/*"],
       "@libs/*": ["src/libs/*"],
       "@tests/*": ["tests/*"]
-    }
-  }
+    },
+    "types": ["node"],
+  },
 }
