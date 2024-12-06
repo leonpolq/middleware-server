@@ -48,35 +48,17 @@ export class GameStartGateway {
 
         this.server.to(redisClientIds).emit('game-started', payload)
 
-        await this.rabbitMQService
+        const response = await this.rabbitMQService
             .requestRPC(
-                RABBITMQ_EXCHANGE_ENUM.GAME_START,
-                RABBITMQ_ROUTING_KEY_ENUM.GAME_START,
+                RABBITMQ_EXCHANGE_ENUM.GAME,
+                RABBITMQ_ROUTING_KEY_ENUM.GAME_CREATE,
                 data,
+                user.id,
             )
 
-        // await this.kafkaService.produceSend(KAFKA_TOPIC_ALL_ENUM.GAME_START, data)
+        this.logger.log(`Response from RabbitMQ: ${response}`)
 
-        // await this.rabbitMQService
-        //     .request(
-        //         RABBITMQ_EXCHANGE_ENUM.GAME_START,
-        //         RABBITMQ_ROUTING_KEY_ENUM.GAME_START,
-        //         data,
-        //     )
-
-        // await this.rabbitMQService
-        //     .publish(
-        //         RABBITMQ_EXCHANGE_ENUM.GAME_START,
-        //         '',
-        //         data,
-        //     )
-        // await this.rabbitMQService
-        //     .publish(
-        //         RABBITMQ_EXCHANGE_ENUM.TEST_RUN,
-        //         '',
-        //         data,
-        //     )
-
-        this.server.to(client.id).emit('game-started', { message: 'Game started!' }) // Send a welcome message
+        this.server.to(client.id)
+            .emit('game-started', response)
     }
 }

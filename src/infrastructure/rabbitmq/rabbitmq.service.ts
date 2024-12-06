@@ -26,6 +26,7 @@ export class RabbitmqService {
         exchange: RABBITMQ_EXCHANGE_ENUM,
         routingKey: RABBITMQ_ROUTING_KEY_ENUM,
         data: T,
+        userId: string,
     ) {
         await this.amqpConnection.channel
             .assertQueue('', { exclusive: true })
@@ -35,9 +36,14 @@ export class RabbitmqService {
                 routingKey: routingKey,
                 payload: data,
                 timeout: 100000000,
+                headers: {
+                    'x-user-id': userId,
+                }
             })
 
         console.log('response', response)
+
+        return response
     }
 
     async publish(

@@ -2,7 +2,7 @@ import { Logger, Module, OnModuleInit } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { RabbitmqService } from '@src/infrastructure/rabbitmq/rabbitmq.service'
 import { AmqpConnection, RabbitMQModule as RabbitMQModuleLIB } from '@golevelup/nestjs-rabbitmq'
-import { RABBITMQ_EXCHANGE_ENUM } from '@src/infrastructure/rabbitmq/rabbitmq.queue.enum'
+import { RABBITMQ_EXCHANGE_ENUM, RABBITMQ_ROUTING_KEY_ENUM } from '@src/infrastructure/rabbitmq/rabbitmq.queue.enum'
 
 @Module({
     imports: [
@@ -10,11 +10,11 @@ import { RABBITMQ_EXCHANGE_ENUM } from '@src/infrastructure/rabbitmq/rabbitmq.qu
         RabbitMQModuleLIB.forRoot(RabbitMQModuleLIB, {
             exchanges: [
                 {
-                    name: RABBITMQ_EXCHANGE_ENUM.GAME_START,
+                    name: RABBITMQ_EXCHANGE_ENUM.GAME,
                     type: 'topic',
                 },
                 {
-                    name: RABBITMQ_EXCHANGE_ENUM.TEST_RUN,
+                    name: RABBITMQ_EXCHANGE_ENUM.TEST,
                     type: 'topic',
                 }
             ],
@@ -50,16 +50,32 @@ export class RabbitMQModule implements OnModuleInit {
 
         this.logger.log(this.amqpConnection)
 
-        await Promise.all([
-            RABBITMQ_EXCHANGE_ENUM.GAME_START,
-            RABBITMQ_EXCHANGE_ENUM.TEST_RUN,
-        ].map(async (exchange: RABBITMQ_EXCHANGE_ENUM) => {
-            let queue = `${exchange}.kafka`
+        await Promise.all(([
+                [
+                    RABBITMQ_EXCHANGE_ENUM.GAME,
+                    [
+                        RABBITMQ_ROUTING_KEY_ENUM.GAME_CREATE,
+                        RABBITMQ_ROUTING_KEY_ENUM.GAME_START,
+                        RABBITMQ_ROUTING_KEY_ENUM.GAME_PAUSE,
+                        ''
+                    ]
+                ],
+                [
+                    RABBITMQ_EXCHANGE_ENUM.TEST,
+                    [
+                        ''
+                    ]
+                ],
+            ] as [RABBITMQ_EXCHANGE_ENUM, [RABBITMQ_ROUTING_KEY_ENUM | '']][]).map(async ([exchange, routingKeys]) => {
+                await Promise.all(
+                    routingKeys.map(async (routingKey) => {
+                        let queue = `${exchange}.kafka`
 
-            this.logger.log('queue', queue)
-
-            await this.amqpConnection.channel.assertQueue(queue, { durable: true })
-            await this.amqpConnection.channel.bindQueue(queue, exchange, '')
-        }))
+                        await this.amqpConnection.channel.assertQueue(queue, { durable: true })
+                        await this.amqpConnection.channel.bindQueue(queue, exchange, routingKey)
+                    })
+                )
+            })
+        )
     }
 }

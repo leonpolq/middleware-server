@@ -1,6 +1,6 @@
 export enum RABBITMQ_EXCHANGE_ENUM {
-    GAME_START = 'game.start',
-    TEST_RUN = 'test.run',
+    GAME = 'game',
+    TEST = 'test',
 }
 
 export enum RABBITMQ_EXCHANGE_DLQ_ENUM {
@@ -13,12 +13,15 @@ export const RABBITMQ_EXCHANGE_ALL_ENUM = {
 } as const;
 
 export enum RABBITMQ_QUEUE_ENUM {
-    GAME_START = 'game.start',
+    GAME_START = 'game.start.queue',
+    GAME_PAUSE = 'game.pause.queue',
+    GAME_CREATE = 'game.create.queue',
 }
 
 export enum RABBITMQ_ROUTING_KEY_ENUM {
-    GAME_START = 'game.start.key.rpc',
+    GAME_CREATE = 'game.create.key.rpc',
     GAME_PAUSE = 'game.pause.key.rpc',
+    GAME_START = 'game.start.key.rpc',
 }
 
 export type RABBITMQ_EXCHANGE_ALL_ENUM = typeof RABBITMQ_EXCHANGE_ALL_ENUM[keyof typeof RABBITMQ_EXCHANGE_ALL_ENUM];
