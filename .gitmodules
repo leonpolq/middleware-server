@@ -1,0 +1,3 @@
+[submodule "src/shared-interfaces"]
+	path = src/shared-interfaces
+	url = ../interfaces
