@@ -27,7 +27,7 @@ export class RabbitmqService {
         routingKey: RABBITMQ_ROUTING_KEY_ENUM,
         data: T,
         userId: string,
-    ) {
+    ): Promise<N> {
         await this.amqpConnection.channel
             .assertQueue('', { exclusive: true })
         const response = await this.amqpConnection

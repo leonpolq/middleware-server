@@ -12,6 +12,7 @@ import { RedisService } from '@src/infrastructure/redis/redis.service'
 import { GmailBasedValidationPipe, LeStartValidationPipe } from '@src/utils/gmail-based.validation.pipe'
 import { RabbitmqService } from '@src/infrastructure/rabbitmq/rabbitmq.service'
 import { RABBITMQ_EXCHANGE_ENUM, RABBITMQ_ROUTING_KEY_ENUM } from '@src/infrastructure/rabbitmq/rabbitmq.queue.enum'
+import { GameStartedEventDTO } from '@src/shared-interfaces/websocket/GameStartedEventDTO'
 
 @WebsocketGatewayDecorator()
 @WebsocketExceptionHandler()
@@ -49,7 +50,7 @@ export class GameStartGateway {
         this.server.to(redisClientIds).emit('game-started', payload)
 
         const response = await this.rabbitMQService
-            .requestRPC(
+            .requestRPC<typeof data, GameStartedEventDTO>(
                 RABBITMQ_EXCHANGE_ENUM.GAME,
                 RABBITMQ_ROUTING_KEY_ENUM.GAME_CREATE,
                 data,
