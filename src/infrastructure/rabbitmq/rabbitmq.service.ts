@@ -43,7 +43,7 @@ export class RabbitmqService {
 
         console.log('response', response)
 
-        return response
+        return response as N
     }
 
     async publish(

@@ -5,10 +5,10 @@ export function ValidationDecorator() {
     return applyDecorators(
         UsePipes(new ValidationPipe({
             exceptionFactory: (errors) => {
-                // Log the errors for debugging
-                const logger = new Logger('ValidationPipe 1');
+                const logger = new Logger('ValidationPipe');
+
                 errors.forEach((error) => {
-                    logger.error(`Validation failed on ${error.property}: ${JSON.stringify(error.constraints)}`);
+                    logger.error(`Validation failed on ${error.property}: ${JSON.stringify(error.constraints)} value "${error.value}"`);
                 });
 
                 return new BadRequestException(errors);

@@ -12,7 +12,8 @@ import { RedisService } from '@src/infrastructure/redis/redis.service'
 import { GmailBasedValidationPipe, LeStartValidationPipe } from '@src/utils/gmail-based.validation.pipe'
 import { RabbitmqService } from '@src/infrastructure/rabbitmq/rabbitmq.service'
 import { RABBITMQ_EXCHANGE_ENUM, RABBITMQ_ROUTING_KEY_ENUM } from '@src/infrastructure/rabbitmq/rabbitmq.queue.enum'
-import { GameStartedEventDTO } from '@src/shared-interfaces/websocket/GameStartedEventDTO'
+import { WebsocketEventNames } from '@src/shared-interfaces/websocket/WebsocketEventNames'
+import { EntityIdDTO } from '@src/shared-interfaces/websocket/EntityIdDTO'
 
 @WebsocketGatewayDecorator()
 @WebsocketExceptionHandler()
@@ -47,19 +48,17 @@ export class GameStartGateway {
         const redisClientIds = await this.redisService.getValueFromList(user.id)
         console.log('redisClientIds', redisClientIds)
 
-        this.server.to(redisClientIds).emit('game-started', payload)
-
         const response = await this.rabbitMQService
-            .requestRPC<typeof data, GameStartedEventDTO>(
+            .requestRPC<typeof data, EntityIdDTO>(
                 RABBITMQ_EXCHANGE_ENUM.GAME,
                 RABBITMQ_ROUTING_KEY_ENUM.GAME_CREATE,
                 data,
                 user.id,
             )
 
-        this.logger.log(`Response from RabbitMQ: ${response}`)
+        this.logger.log(`Response from RabbitMQ: ${JSON.stringify(response)}`)
 
         this.server.to(client.id)
-            .emit('game-started', response)
+            .emit(WebsocketEventNames.gameStarted, response)
     }
 }
