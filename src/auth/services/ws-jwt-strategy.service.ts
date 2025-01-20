@@ -39,6 +39,6 @@ export class WsJwtStrategy extends PassportStrategy(Strategy, 'ws-jwt') {
 
     async validate(payload: any) {
         // Validate payload and attach user details to the request
-        return { idUser: payload.sub, email: payload.email }
+        return { id: payload.sub, email: payload.email }
     }
 }

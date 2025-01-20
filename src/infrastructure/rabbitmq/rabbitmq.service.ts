@@ -2,7 +2,6 @@ import { Injectable, Logger, } from '@nestjs/common'
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import { RABBITMQ_EXCHANGE_ENUM, RABBITMQ_ROUTING_KEY_ENUM } from '@src/infrastructure/rabbitmq/rabbitmq.queue.enum'
 import { Buffer } from 'buffer'
-// import {Buffer from 'buffer'
 
 class ExpectedReturnType {
 }

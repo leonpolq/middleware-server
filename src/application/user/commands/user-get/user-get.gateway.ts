@@ -14,10 +14,13 @@ import { RabbitmqService } from '@src/infrastructure/rabbitmq/rabbitmq.service'
 import { RABBITMQ_EXCHANGE_ENUM, RABBITMQ_ROUTING_KEY_ENUM } from '@src/infrastructure/rabbitmq/rabbitmq.queue.enum'
 import { WebsocketEventNames } from '@src/shared-interfaces/websocket/WebsocketEventNames'
 import { EntityIdDTO } from '@src/shared-interfaces/websocket/EntityIdDTO'
+import {
+    UserCreateLightSocketRequestDto, UserCreateSocketRequestDto
+} from '@src/application/user/commands/user-create/dtos/user-create.socket.request.dto'
 
 @WebsocketGatewayDecorator()
 @WebsocketExceptionHandler()
-export class GameStartGateway {
+export class UserCreateGateway {
     @WebSocketServer() server: Server
 
     private readonly logger: Logger = new Logger('ChatGateway')
@@ -27,38 +30,32 @@ export class GameStartGateway {
         private readonly rabbitMQService: RabbitmqService
     ) {}
 
-    @SubscribeMessage(WebsocketEventNames.gameStart)
+    @SubscribeMessage(WebsocketEventNames.userGet)
     @ValidationDecorator()
     @UseGuards(WsAuthGuard)
     async handleMessage(
-        @CurrentUser(new GmailBasedValidationPipe(), new LeStartValidationPipe())
-            user: CurrentUserInterface,
+        @CurrentUser() user: CurrentUserInterface,
         @ConnectedSocket() client: Socket,
-        @MessageBody() payload: StartGameSocketRequestDto
+        @MessageBody() payload: UserCreateSocketRequestDto
     ) {
-        this.logger.log(`User from JWT: ${user}`)
-        this.logger.log(`Message from ${payload} and stringified: ${JSON.stringify(payload)}`)
-
         const correlationId = uuidv4()
-
         const data = {
-            ...payload,
+            id: user.id,
             correlationId,
         }
-        const redisClientIds = await this.redisService.getValueFromList(user.id)
-        console.log('redisClientIds', redisClientIds)
-
         const response = await this.rabbitMQService
             .requestRPC<typeof data, EntityIdDTO>(
-                RABBITMQ_EXCHANGE_ENUM.GAME,
-                RABBITMQ_ROUTING_KEY_ENUM.GAME_CREATE,
+                RABBITMQ_EXCHANGE_ENUM.USER,
+                RABBITMQ_ROUTING_KEY_ENUM.USER_GET,
                 data,
                 user.id,
             )
 
         this.logger.log(`Response from RabbitMQ: ${JSON.stringify(response)}`)
 
-        this.server.to(client.id)
-            .emit(WebsocketEventNames.gameStarted, response)
+        return {
+            success: true,
+            data: response,
+        }
     }
 }

@@ -14,7 +14,11 @@ import { RABBITMQ_EXCHANGE_ENUM, RABBITMQ_ROUTING_KEY_ENUM } from '@src/infrastr
                     type: 'topic',
                 },
                 {
-                    name: RABBITMQ_EXCHANGE_ENUM.TEST,
+                    name: RABBITMQ_EXCHANGE_ENUM.MAP,
+                    type: 'topic',
+                },
+                {
+                    name: RABBITMQ_EXCHANGE_ENUM.USER,
                     type: 'topic',
                 }
             ],
@@ -61,12 +65,21 @@ export class RabbitMQModule implements OnModuleInit {
                     ]
                 ],
                 [
-                    RABBITMQ_EXCHANGE_ENUM.TEST,
+                    RABBITMQ_EXCHANGE_ENUM.MAP,
                     [
+                        RABBITMQ_ROUTING_KEY_ENUM.MAP_GET,
                         ''
                     ]
                 ],
-            ] as [RABBITMQ_EXCHANGE_ENUM, [RABBITMQ_ROUTING_KEY_ENUM | '']][]).map(async ([exchange, routingKeys]) => {
+                [
+                    RABBITMQ_EXCHANGE_ENUM.USER,
+                    [
+                        RABBITMQ_ROUTING_KEY_ENUM.USER_CREATE,
+                        RABBITMQ_ROUTING_KEY_ENUM.USER_GET,
+                        ''
+                    ]
+                ],
+            ] as [RABBITMQ_EXCHANGE_ENUM, (RABBITMQ_ROUTING_KEY_ENUM | '')[]][]).map(async ([exchange, routingKeys]) => {
                 await Promise.all(
                     routingKeys.map(async (routingKey) => {
                         let queue = `${exchange}.kafka`
